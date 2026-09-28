@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e16"><meta name="description" content="Interactive 3D physics lab — from basics to advanced.">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Physics Lab">
+<title>Physics Lab</title><link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"><link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="top"><div class="brand" id="brand"></div><div><h1>Physics Lab</h1><p>Touch it. Change it. See the physics.</p></div></div>
+<div class="tabs" id="tabs"></div><div class="lvhead" id="lvhead"></div><div id="grid"></div>
+<script type="module">
+import { LEVELS, levelIcon } from './modules.js';
+const $ = id => document.getElementById(id);
+$('brand').innerHTML = levelIcon(3);
+let cur = +(localStorage.getItem('pl-level') || 0);
+function draw() {
+  $('tabs').innerHTML = LEVELS.map((l, i) => `<button class="tab ${i === cur ? 'on' : ''}" style="--c:${l.color};${i === cur ? 'background:' + l.color : ''}" data-i="${i}" aria-label="Level ${l.n}">${levelIcon(l.n)}</button>`).join('');
+  const L = LEVELS[cur];
+  $('lvhead').innerHTML = `<div class="ic" style="color:${L.color}">${levelIcon(L.n)}</div><div><p>${L.blurb}</p><div class="dots">${LEVELS.map((x, i) => `<i style="${i <= cur ? 'background:' + L.color : ''}"></i>`).join('')}</div></div>`;
+  $('grid').innerHTML = L.modules.map(m => {
+    const inner = `<div class="mi" style="background:${m.color}22;color:${m.color}"><svg viewBox="0 0 24 24">${m.icon}</svg></div><b>${m.label}</b><span>${m.sub}</span>`;
+    return m.soon ? `<div class="card soon">${inner}</div>` : `<a class="card" href="${m.id}.html">${inner}</a>`;
+  }).join('');
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => { cur = +b.dataset.i; try { localStorage.setItem('pl-level', cur); } catch (e) {} draw(); });
+}
+draw();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script></body></html>

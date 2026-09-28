@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e16"><title>Force & Friction · Physics Lab</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="stylesheet" href="app.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head>
+<body><div class="bar"><a href="index.html" aria-label="Back">←</a><b id="ttl">Force & Friction</b></div>
+<div class="wrap"><canvas id="cv"></canvas><div id="ro"></div><div class="ctl" id="ctl"></div><div id="note"></div></div>
+<script type="module">import { run } from './kit.js'; import cfg from './sims/friction.js'; run(cfg);</script>
+</body></html>
