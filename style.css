@@ -11,6 +11,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 #hd a,#hd button{min-width:var(--tap);height:var(--tap);display:grid;place-items:center;border-radius:.7rem;border:1px solid var(--line);background:var(--panel2);color:var(--tx);text-decoration:none;font-size:1.1rem;padding:0}
 #hd button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 #ttl{flex:1;min-width:0;font-size:.95rem;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#ttl.ttabs{display:flex;gap:.3rem;overflow:visible;-webkit-line-clamp:unset}.ttabs button{flex:1 1 0;min-width:0!important;height:var(--tap);border:1px solid var(--mu)!important;background:var(--panel2);border-radius:.7rem;font-size:.82rem;font-weight:700;padding:0 .2rem!important;color:var(--tx)!important;display:grid;place-items:center}.ttabs button.on{background:var(--ac)!important;border-color:var(--ac)!important;color:#fff!important}
+[data-tabs][data-mode=portrait] #chip,[data-tabs][data-mode=portrait] #dot,[data-tabs][data-mode=landscape] #chip,[data-tabs][data-mode=landscape] #dot{display:none}
 #dot{width:.6rem;height:.6rem;border-radius:50%;background:var(--ok);flex:none}#dot.off{background:var(--warn)}
 #chip{font-size:.72rem;font-weight:700;color:#fff;background:var(--ac);border-radius:99px;padding:.15rem .6rem;white-space:nowrap}
 #chip .cd{display:none}
@@ -81,7 +83,7 @@ html[data-itab=now] #cap,[data-mode=portrait][data-itab] #cap,[data-mode=landsca
 [data-mode=portrait] #mon.open .mb{display:flex;flex-direction:column;min-height:0;overflow:auto}
 [data-mode=portrait] .rows{display:flex;flex-wrap:wrap;gap:0 1rem}[data-mode=portrait] .rows div{border-top:0;gap:.4rem}
 [data-mode=portrait] .gr{height:auto;flex:0 1 6.5rem;min-height:3rem}
-[data-mode=portrait] .seg{grid-template-columns:repeat(auto-fill,minmax(min(100%,4.2rem),1fr))}[data-mode=portrait] .seg button{padding:.15rem .25rem;font-size:.74rem}
+[data-mode=portrait] .seg{grid-template-columns:repeat(auto-fill,minmax(min(100%,3.5rem),1fr))}[data-mode=portrait] .seg button{padding:.15rem .25rem;font-size:.74rem}
 [data-mode=portrait] .seg button,[data-mode=portrait] .tgl,[data-mode=portrait] .chip{min-height:2.5rem}[data-mode=portrait] .opts{gap:.35rem}[data-mode=portrait] .tgl{padding:.2rem .4rem;gap:.3rem}[data-mode=portrait] .tgl .nm{font-size:.72rem;min-width:0;line-height:1.1}[data-mode=portrait] .choice{gap:.15rem}[data-mode=portrait] .seg{gap:.25rem}[data-mode=portrait] .axis{width:3.4rem}
 [data-mode=portrait] #info{margin:0;border-radius:1rem 1rem 0 0;max-height:40dvh;border-width:1px 0 0}
 /* ── PHONE, landscape & SMART BOARD (wide): controls rail | model | monitor column ── */

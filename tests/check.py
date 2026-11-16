@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Physics Lab regression check (not shipped with the app; lives next to the PL folder).
    Per sim and per phone size it checks: no dock/monitor/page scroll, no clipped dock text, no console errors,
-   every 3D label >= 11 px tall and inside the screen.
+   every 3D label >= 11 px tall and inside the screen. It also clicks through every choice button (modes, vessels, sources…) and re-checks each screen (MODES=0 to skip).
    Run:   pip install playwright && playwright install chromium
           python3 tests/check.py                      # all sims, 4 phone sizes
           python3 tests/check.py magnet10 sound9      # only these sims
@@ -38,7 +38,23 @@ with sync_playwright() as p:
             pg = b.new_page(viewport={'width': w, 'height': h}); errs = []
             pg.on('pageerror', lambda e: errs.append('js error: ' + str(e))); pg.on('console', lambda m: errs.append('console error: ' + m.text) if m.type == 'error' else None)
             pg.goto(f'http://127.0.0.1:{PORT}/lab.html?sim={sid}'); pg.wait_for_timeout(1000)
-            bad = errs + pg.evaluate(SCROLL) + pg.evaluate(LABELS); pg.close()
-            print(('FAIL ' if bad else 'ok   ') + f'{sid} {w}x{h}', '; '.join(bad)); fails += bool(bad)
+            bad = errs + pg.evaluate(SCROLL) + pg.evaluate(LABELS)
+            if os.environ.get('MODES', '1') != '0':                       # click every choice button (modes, vessels, sources…) and re-check that screen too
+                n = pg.locator('#dock .seg button').count()
+                for i in range(min(n, 14)):
+                    btn = pg.locator('#dock .seg button').nth(i)
+                    if not btn.is_visible(): continue
+                    name = btn.inner_text().replace('\n', ' ')
+                    btn.click(); pg.wait_for_timeout(450)
+                    got = errs + pg.evaluate(SCROLL) + pg.evaluate(LABELS)
+                    bad += [f'[{name}] ' + g for g in got if g not in bad and not g.startswith('[')]
+                    tg = pg.locator('#dock .tgl')                          # flip every visible switch (e.g. a tilt toggle that reveals one more slider), re-check, flip back
+                    flips = [k for k in range(tg.count()) if tg.nth(k).is_visible()]
+                    for k in flips: tg.nth(k).click()
+                    if flips:
+                        pg.wait_for_timeout(350); got = errs + pg.evaluate(SCROLL) + pg.evaluate(LABELS); bad += [f'[{name}, switches flipped] ' + g for g in got if g not in bad and not g.startswith('[')]
+                        for k in flips: tg.nth(k).click() if tg.nth(k).is_visible() else None
+            pg.close()
+            print(('FAIL ' if bad else 'ok   ') + f'{sid} {w}x{h}', '; '.join(dict.fromkeys(bad))); fails += bool(bad)
     b.close()
 print('FAILED:', fails) if fails else print('ALL OK'); sys.exit(1 if fails else 0)

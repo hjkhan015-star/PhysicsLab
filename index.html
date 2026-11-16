@@ -18,10 +18,10 @@ root.dataset.theme = JSON.parse(get('theme', '"dark"')); $('brand').innerHTML = 
 $('theme').onclick = () => { root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light'; set('theme', JSON.stringify(root.dataset.theme)); };
 const q = +new URLSearchParams(location.search).get('c'); let cur = Math.max(0, CLASSES.findIndex(c => c.n === (q || +get('class', 8))));
 function draw() {
-  const L = CLASSES[cur], ready = L.modules.filter(m => !m.soon).length;
+  const L = CLASSES[cur], mods = L.modules.filter(m => !m.hidden), ready = mods.filter(m => !m.soon).length;
   $('tabs').innerHTML = CLASSES.map((c, i) => `<button class="tab ${i === cur ? 'on' : ''}" style="--c:${c.color};${i === cur ? 'background:' + c.color : ''}" data-i="${i}" aria-label="Class ${c.n}"><b>${c.n}</b><small>Class</small></button>`).join('');
-  $('lvhead').innerHTML = `<div class="ic" style="color:${L.color}">${levelIcon(L.icon)}</div><div><em style="background:${L.color}">${L.tag}</em><p>${L.blurb}</p><small>${ready} of ${L.modules.length} simulations ready</small></div>`;
-  $('grid').innerHTML = L.modules.map(m => {
+  $('lvhead').innerHTML = `<div class="ic" style="color:${L.color}">${levelIcon(L.icon)}</div><div><em style="background:${L.color}">${L.tag}</em><p>${L.blurb}</p><small>${ready} of ${mods.length} simulations ready</small></div>`;
+  $('grid').innerHTML = mods.map(m => {
     const inner = `<div class="mi" style="background:${m.color}22;color:${m.color}"><svg viewBox="0 0 24 24">${m.icon}</svg></div><b>${m.label}</b>${L.n === 8 && !m.soon ? '' : `<span>${L.n === 8 ? '' : m.sub}</span>`}${m.ch ? `<i class="ch">Ch ${m.ch}</i>` : ''}`;
     return m.soon ? `<div class="card soon">${inner}</div>` : `<a class="card ${m.bonus ? 'bonus' : ''}" href="lab.html?sim=${m.id}">${inner}</a>`; }).join('');
   document.querySelectorAll('.tab').forEach(b => b.onclick = () => { cur = +b.dataset.i; set('class', CLASSES[cur].n); draw(); });

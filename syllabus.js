@@ -1,7 +1,7 @@
 // syllabus.js — the list of classes → chapters → simulations (DATA ONLY).
 // Chapter numbers/titles follow the SEBA (Assam) General Science textbooks: Class 8 ch 11–17, Class 9 ch 8–12, Class 10 ch 10–14.
 // To add a simulation: (1) write sims/<id>.js  (2) add one line below, remove  soon:true.  That's all — no build step.
-//   id = file name in sims/ · ch = textbook chapter · label/sub = card text · icon = svg markup · bonus:true = extra, outside the syllabus
+//   id = file name in sims/ · ch = textbook chapter · label/sub = card text · icon = svg markup · bonus:true = extra, outside the syllabus · hidden:true = no home card (the sim is reached from `tabs` inside a sibling sim)
 
 export function levelIcon(n) {                       // little atom icon, richer for higher classes
   const o = Math.min(n, 3);
@@ -14,15 +14,21 @@ export function levelIcon(n) {                       // little atom icon, richer
 
 export const CLASSES = [
  { n: 8, icon: 1, color: "#22c55e", tag: "Easy · Explore", blurb: "Play with it first! Push, shine, listen — no formulas, just see what happens.", modules: [
-   { id: "pressure8", ch: 11, label: "Force and Pressure", sub: "Sink or not?", color: "#0ea5e9", icon: '<path d="M3 10c3-2 6 2 9 0s6 2 9 0M3 16c3-2 6 2 9 0s6 2 9 0"/>' },
-   { id: "liquidpressure8", ch: 11, label: "Force and Pressure – Liquids", sub: "Liquid pressure", color: "#0284c7", icon: '<path d="M7 4h10v14a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3zM7 11h10"/>' },
+   { id: "force8", ch: 11, label: "Force and Pressure", sub: "Push, pull, pressure", color: "#0ea5e9", icon: '<path d="M3 12h14m-4-4 4 4-4 4M21 5v14"/>' },
+   { id: "pressure8", ch: 11, label: "Force and Pressure – Solids", sub: "Sink or not?", color: "#0ea5e9", icon: '<path d="M3 10c3-2 6 2 9 0s6 2 9 0M3 16c3-2 6 2 9 0s6 2 9 0"/>', hidden: true },   // hidden = no home card; reached from the tabs inside force8
+   { id: "liquidpressure8", ch: 11, label: "Force and Pressure – Liquids", sub: "Liquid pressure", color: "#0284c7", icon: '<path d="M7 4h10v14a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3zM7 11h10"/>', hidden: true },
    { id: "friction8", ch: 12, label: "Friction", sub: "Rough or smooth?", color: "#f59e0b", icon: '<rect x="4" y="11" width="9" height="7" rx="1"/><path d="M15 14h6m-2-2 2 2-2 2M3 20h18"/>' },
    { id: "sound8", ch: 13, label: "Sound", sub: "Loud, soft, high, low", color: "#a855f7", icon: '<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6"/>' },
    { id: "electro8", ch: 14, label: "Chemical Effects of Electric Current", sub: "Electroplating", color: "#14b8a6", icon: '<path d="M6 8h12v10H6zM9 5v3M15 5v3"/>' },
    { id: "lightning8", ch: 15, label: "Some Natural Phenomena", sub: "Lightning & static", color: "#eab308", icon: '<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>' },
    { id: "reflection8", ch: 16, label: "Light", sub: "Torch & mirror", color: "#64748b", icon: '<path d="M3 20h18M6 4l6 16M18 4l-6 16"/>' },
    { id: "eye8", ch: 16, label: "Light – Inside the Eye", sub: "Pupil & light", color: "#10b981", icon: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>' },
-   { id: "stars8", ch: 17, label: "Stars and the Solar System", sub: "Moon, planets", color: "#6366f1", icon: '<path d="m12 3 2.5 6 6.5.5-5 4.3 1.6 6.4L12 17l-5.6 3.2L8 13.8 3 9.5 9.5 9z"/>' } ]},
+   { id: "stars8", ch: 17, label: "Stars and the Solar System", sub: "Day, seasons, eclipses", color: "#6366f1", icon: '<path d="m12 3 2.5 6 6.5.5-5 4.3 1.6 6.4L12 17l-5.6 3.2L8 13.8 3 9.5 9.5 9z"/>' },
+   { id: "eclipse8", ch: 17, label: "Stars and the Solar System – Eclipses", sub: "Eclipses, Moon phases", color: "#6366f1", icon: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16"/>', hidden: true },
+   { id: "planets8", ch: 17, label: "Stars and the Solar System – Planets", sub: "Eight planets", color: "#6366f1", icon: '<circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4"/>', hidden: true },
+   { id: "skyobjects8", ch: 17, label: "Stars and the Solar System – Sky Objects", sub: "Comets, meteors, stars", color: "#8b5cf6", icon: '<path d="M4 20 16 8M13 5l6 0 0 6"/><circle cx="17" cy="7" r="2"/>' },
+   { id: "scale8", ch: 17, label: "Stars and the Solar System – Scale", sub: "Earth to the Universe", color: "#8b5cf6", icon: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>', hidden: true },
+   { id: "satellites8", ch: 17, label: "Stars and the Solar System – Satellites", sub: "ISS, GPS, geostationary", color: "#8b5cf6", icon: '<rect x="9" y="9" width="6" height="6"/><path d="M3 10h4M3 14h4M17 10h4M17 14h4"/>', hidden: true } ]},
  { n: 9, icon: 3, color: "#0ea5e9", tag: "Standard · Formulas", blurb: "Numbers enter the game — measure, use the equations and check them.", modules: [
    { id: "motion9", ch: 8, label: "Motion", sub: "u, a, t & graphs", color: "#ef4444", icon: '<path d="M3 17h4l3-8 4 10 3-6h4"/>' },
    { id: "circular9", ch: 8, label: "Motion – Circular Motion", sub: "v = 2πr ÷ T", color: "#f43f5e", icon: '<circle cx="12" cy="12" r="8"/><path d="M20 12l-2-2m2 2 2-2"/>' },
