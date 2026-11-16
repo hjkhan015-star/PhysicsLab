@@ -2,7 +2,7 @@
 //   header · control dock (sliders, choices, switches) · monitor (numbers + graph) · info sheet (explain / try / remember / quiz) · menu
 // Layout logic is borrowed from AutoLab3: phone = bottom dock + top number strip · tablet = bottom bar · smart board = left rail + right column.
 // Students normally write ONLY sims/*.js. See HOW-TO-ADD-A-SIM.md.
-import { view, THREE } from './scene.js';
+import { view, THREE, tone } from './scene.js';
 import { findSim } from './syllabus.js';
 
 const $ = s => document.querySelector(s), root = document.documentElement;
@@ -95,7 +95,7 @@ async function start() {
     if (mode === 'wide') return setDock(dockState === 'slim' ? 'default' : 'slim');
     if (Math.abs(dy) >= 24) return setDock(NEXT[dy < 0 ? 'up' : 'down'][dockState]);
     setDock(dockState === 'options' ? 'default' : NEXT.up[dockState]); };
-  const setPaused = v => { paused = v; $('#play').innerHTML = v ? '<i class=\"gl pl\"></i><span class="tx">Play</span>' : '<i class=\"gl pz\"></i><span class="tx">Pause</span>'; $('#play').setAttribute('aria-label', v ? 'Play' : 'Pause'); $('#dot').className = v ? 'off' : ''; };
+  const setPaused = v => { paused = v; tone.hold(v); $('#play').innerHTML = v ? '<i class=\"gl pl\"></i><span class="tx">Play</span>' : '<i class=\"gl pz\"></i><span class="tx">Pause</span>'; $('#play').setAttribute('aria-label', v ? 'Play' : 'Pause'); $('#dot').className = v ? 'off' : ''; };
   const restart = () => { cfg.reset(P); cfg.step(0, P); lastText = 0; };
   $('#play').onclick = () => setPaused(!paused); $('#rst').onclick = restart;
 
@@ -124,7 +124,11 @@ async function start() {
   $('#bInfo').onclick = () => openInfo(info.hidden); $('#cap').onclick = () => openInfo(info.hidden, 'now');
 
   // title too long for two lines on a phone → use the short chapter label from syllabus.js
-  const fitTitle = () => { const h = $('#ttl'); h.textContent = cfg.title; if (meta && (mode === 'portrait' || mode === 'landscape') && h.scrollHeight > h.clientHeight + 1) h.textContent = meta.mod.label; };
+  const fitTitle = () => { const h = $('#ttl'); if (cfg.tabs) return; h.textContent = cfg.title; if (meta && (mode === 'portrait' || mode === 'landscape') && h.scrollHeight > h.clientHeight + 1) h.textContent = meta.mod.label; };
+  if (cfg.tabs) {                                                   // chapter switcher in the header: tabs: [['force8','Force'],['pressure8','Solids']] — each opens that sim
+    const h = $('#ttl'); root.dataset.tabs = '1'; h.className = 'ttabs'; h.innerHTML = cfg.tabs.map(([id, n]) => `<button data-id="${id}" class="${id === simId ? 'on' : ''}" aria-pressed="${id === simId}">${n}</button>`).join('');
+    h.onclick = e => { const b = e.target.closest('button'); if (b && b.dataset.id !== simId) location.replace('lab.html?sim=' + b.dataset.id); };
+  }
   fitTitle(); addEventListener('resize', fitTitle);
 
   // first-visit hint (Class 8) and Try-this cheer share one small overlay on the stage

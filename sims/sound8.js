@@ -1,29 +1,46 @@
-// Class 8 · Sound — vibrations, loudness (amplitude) and pitch (frequency). Slowed down so you can see it.
-import { S, V, box, THREE, beep, label } from '../scene.js';
-const LOUD = ['Whisper', 'Soft', 'Medium', 'Loud', 'Very loud'], PITCH = ['Very low', 'Low', 'Medium', 'High', 'Very high'], HZ = [130, 260, 440, 660, 880], LAM = [10, 7, 5, 3.5, 2.5];
-const N = 90, ROWS = 3, DX = .3; let pos, geo, src, t;
+// Class 8 · Ch 13 Sound — vibrations, loudness (amplitude) and pitch (frequency), slowed down so you can see them. Turn 🔊 Sound on to hear it.
+// Only the vibrating part moves: the speaker's cone (not its box), the fork's prongs (not its handle), the string (not the guitar). Sound needs a medium: air, water — not empty space.
+import { S, V, box, THREE, tone, label } from '../scene.js';
+const LOUD = ['Whisper', 'Soft', 'Medium', 'Loud', 'Very loud'], PITCH = ['Very low', 'Low', 'Medium', 'High', 'Very high'], HZ = [110, 220, 440, 880, 1760], LAM = [10, 7, 5, 3.4, 2.4], GAIN = [.05, .11, .2, .36, .6];
+const SRC = ['Speaker', 'Tuning fork', 'Guitar string'], KIND = ['speaker', 'fork', 'string'], MED = ['Air', 'Water', 'Empty space'], SPD = [340, 1500, 0], VIS = [1, 2.2, 1], MCOL = [0x93c5fd, 0x38bdf8, 0x93c5fd];
+const N = 62, ROWS = 4, DX = .28, XS = -9.2, NS = 40, YC = 2.7; let pos, geo, pts, cab, cone, cap, ring, hand, fork, prA, prB, str, strG, sp, bodyG, lbl, lmed, t;
+const sp0 = new Float32Array(NS * 3);
 export default {
-  title: 'Sound — Vibrations', cam: { d: 22, e: .12, a: 0, t: V(0, 1.6, 0) },
-  head: 'Shakes per second',
-  sliders: [{ k: 'a', l: '🔈 Loudness', min: 1, max: 5, step: 1, v: 3, names: LOUD }, { k: 'p', l: '🎵 Pitch', min: 1, max: 5, step: 1, v: 3, names: PITCH }],
+  title: 'Sound — Vibrations', cam: { d: 18.5, e: .1, a: 0, t: V(-.2, 2.7, 0), ref: 1.5 }, head: 'Shakes per second',
+  sliders: [{ k: 'a', l: '🔈 Loudness', min: 1, max: 5, step: 1, v: 3, names: LOUD }, { k: 'p', l: '🎵 Pitch', min: 1, max: 5, step: 1, v: 3, names: PITCH },
+    { k: 'src', l: '🎸 Source', min: 1, max: 3, step: 1, v: 1, names: SRC, axis: true }, { k: 'm', l: '🌫 Medium', min: 1, max: 3, step: 1, v: 1, names: MED }],
+  toggles: [{ k: 'snd', l: '🔊 Sound on', v: false }],
   setup() {
-    src = box(.8, 3, 2.5, 0xa855f7); src.position.set(-14.5, 1.6, 0); label('Speaker', '#d8b4fe', .9).position.set(-14.5, 4.3, 0);
-    pos = new Float32Array(N * ROWS * 3); geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    S.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: .35 })));
+    cab = box(1.1, 5, 3.4, 0x1e293b); cab.position.set(XS - .6, YC, 0); ring = new THREE.Mesh(new THREE.TorusGeometry(1.5, .12, 8, 28), new THREE.MeshStandardMaterial({ color: 0x94a3b8 })); ring.rotation.y = Math.PI / 2; ring.position.set(XS - .02, YC, 0); S.add(ring);
+    cone = new THREE.Mesh(new THREE.CylinderGeometry(1.45, .55, .65, 24), new THREE.MeshStandardMaterial({ color: 0xa855f7, roughness: .5 })); cone.rotation.z = -Math.PI / 2; S.add(cone);
+    cap = new THREE.Mesh(new THREE.SphereGeometry(.5, 14, 10), new THREE.MeshStandardMaterial({ color: 0xe9d5ff })); S.add(cap);
+    hand = box(.5, 2.4, .6, 0x94a3b8); fork = box(1.4, .45, .6, 0x94a3b8); prA = box(.4, 3.6, .6, 0xcbd5e1); prB = box(.4, 3.6, .6, 0xcbd5e1);
+    bodyG = box(2.6, 5.2, 1.4, 0x8a5a2b); bodyG.position.set(XS - 1.5, YC, 0);
+    str = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(sp0, 3)), new THREE.PointsMaterial({ color: 0xfde047, size: .24 })); S.add(str); str.frustumCulled = false;
+    pos = new Float32Array(N * ROWS * 3); geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x93c5fd, size: .36 })); S.add(pts); pts.frustumCulled = false;
+    lbl = label('', '#d8b4fe', .9); lbl.position.set(XS + 3.8, YC + 3.6, 0); lmed = label('', '#e2e8f0', .9); lmed.position.set(2, YC - 3.4, 0);
   },
   reset() { t = 0; },
   step(dt, P) {
-    t += dt; const k = 2 * Math.PI / LAM[P.p - 1], w = k * 4, A = .09 * P.a;       // wave speed 4 units/s
-    for (let r = 0; r < ROWS; r++) for (let i = 0; i < N; i++) { const x0 = -13.5 + i * DX, j = (r * N + i) * 3;
-      pos[j] = x0 + A * Math.sin(k * x0 - w * t); pos[j + 1] = .6 + r * 1.0; pos[j + 2] = 0; }
-    geo.attributes.position.needsUpdate = true; src.position.x = -14.5 + A * Math.sin(-w * t);
+    t += dt; const s = P.src - 1, vac = P.m === 3, vis = VIS[P.m - 1], lam = LAM[P.p - 1] * vis, k = 2 * Math.PI / lam, w = k * 4 * vis, A = .1 * P.a * (vac ? 1 : 1), ph = Math.sin(-w * t) * A, f = HZ[P.p - 1];
+    [cab, ring, cone, cap].forEach(o => o.visible = s === 0); [hand, fork, prA, prB].forEach(o => o.visible = s === 1); [bodyG, str].forEach(o => o.visible = s === 2);
+    if (s === 0) { cab.position.x = XS - .6; cone.position.set(XS + .25 + ph, YC, 0); cap.position.set(XS + .62 + ph, YC, 0); }                                // only the cone moves
+    if (s === 1) { hand.position.set(XS - .6, YC - 1.7, 0); fork.position.set(XS - .6, YC - .3, 0); prA.position.set(XS - 1.2 - ph * .7, YC + 1.7, 0); prB.position.set(XS + 0 + ph * .7, YC + 1.7, 0); }   // only the prongs move
+    if (s === 2) { for (let i = 0; i < NS; i++) { const u = i / (NS - 1); sp0[i * 3] = XS + .15 + ph * Math.sin(Math.PI * u) * 1.1; sp0[i * 3 + 1] = YC - 2.2 + u * 4.4; sp0[i * 3 + 2] = .1; } str.geometry.attributes.position.needsUpdate = true; }   // only the string moves
+    const x0s = XS + (s === 1 ? .15 : s === 2 ? .3 : .75);
+    pts.visible = !vac; pts.material.color.set(MCOL[P.m - 1]);
+    for (let r = 0; r < ROWS; r++) for (let i = 0; i < N; i++) { const x0 = x0s + .6 + i * DX, j = (r * N + i) * 3; pos[j] = x0 + A * Math.sin(k * (x0 - XS) - w * t); pos[j + 1] = YC - 2.1 + r * 1.4 + (P.m === 2 ? Math.sin(i * 3 + r) * .1 : 0); pos[j + 2] = 0; }
+    geo.attributes.position.needsUpdate = true;
+    lbl.set(SRC[s] + (s === 0 ? ': only the cone shakes' : s === 1 ? ': prongs shake' : ': string shakes'), '#d8b4fe'); lmed.set(vac ? 'Empty space: no sound' : MED[P.m - 1] + ' particles', vac ? '#fca5a5' : '#e2e8f0');
+    if (P.snd && !vac) tone.set(f, GAIN[P.a - 1], KIND[s]); else tone.stop(); P.heard = P.snd && !vac; if (P.snd && P.p <= 2) P.lo = true; if (P.snd && P.p >= 4) P.hi = true; if (P.snd && vac) P.silent = true;
   },
-  buttons: [{ l: '🔊 Hear it', fn: P => { beep(HZ[P.p - 1], .03 * P.a + .02, 1.3); if (P.p <= 2) P.lo = true; if (P.p >= 4) P.hi = true; } }],
-  ro: { 'Shakes per second': P => HZ[P.p - 1] + ' Hz' },
-  note: () => 'Sound is made by <b>vibrations</b> (shaking). Bigger shakes sound louder; faster shakes sound higher.',
-  try: [{ t: 'Turn <b>Loudness</b> up. What changes: the size of the shake or its speed?', check: P => P.a === 5, yes: 'Yes! A bigger shake is louder.' },
-    { t: 'Turn <b>Pitch</b> up. Do the shakes get faster?', check: P => P.p === 5, yes: 'Yes! More shakes per second is a higher pitch.' },
-    { t: 'Press <b>🔊 Hear it</b> at low and high pitch. Which sounds thinner?', check: P => P.lo && P.hi, yes: 'Yes! High sounds are thin.' }],
-  key: ['Sound needs air, water or a solid. It cannot cross empty space (<b>vacuum</b>).', '<b>Frequency</b> is shakes per second. Its unit is hertz (Hz).', 'People hear 20 to 20,000 Hz. Lower is infrasound, higher is ultrasound.', 'Loud, unpleasant sound is noise. Too much of it is noise pollution.'],
-  quiz: [{ q: 'What makes the pitch of a sound higher?', o: ['A bigger shake', 'Faster shakes (more per second)', 'A heavier speaker'], a: 1, why: 'More shakes per second make a higher pitch.' }, { q: 'Can sound travel through a vacuum?', o: ['Yes', 'No', 'Only through water'], a: 1, why: 'Sound needs air, water or a solid.' }]
+  ro: { 'Shakes per second': P => HZ[P.p - 1] + ' Hz', 'One shake takes': P => (1000 / HZ[P.p - 1]).toFixed(P.p > 3 ? 2 : 1) + ' ms', Loudness: P => LOUD[P.a - 1], Pitch: P => PITCH[P.p - 1], 'Sound speed': P => SPD[P.m - 1] ? SPD[P.m - 1] + ' m/s' : '0 – none' },
+  status: P => P.m === 3 ? ['No sound in empty space', false, 'warn'] : P.snd ? ['Playing', true] : ['Tap 🔊 Sound on', false, 'warn'],
+  note: P => P.m === 3 ? '<b>Empty space has no air.</b> The source still shakes, but there is nothing to carry the shakes, so you hear nothing.' : `<b>Sound is made by vibrations.</b> Bigger shake → <b>louder</b>. Faster shakes → <b>higher pitch</b>.${P.m === 2 ? ' Sound is faster in water.' : ''}${P.snd ? '' : ' Switch <b>🔊 Sound on</b> to hear it.'}`,
+  try: [{ t: 'Switch <b>🔊 Sound on</b>. Turn <b>Loudness</b> up. What changes: the size of the shake or its speed?', check: P => P.heard && P.a === 5, yes: 'Yes! A bigger shake is louder.' },
+    { t: 'With sound on, turn <b>Pitch</b> from low to high. Do the shakes get faster?', check: P => P.lo && P.hi, yes: 'Yes! More shakes per second is a higher pitch.' },
+    { t: 'Change the <b>Source</b> to <b>Tuning fork</b>. What part is shaking?', check: P => P.src === 2, yes: 'Yes! Only the two prongs shake.' },
+    { t: 'Set the <b>Medium</b> to <b>Empty space</b> with sound on. Can you hear it?', check: P => P.silent, yes: 'Yes! No air, no sound.' }],
+  key: ['Sound is made by <b>vibrations</b> — back-and-forth shaking.', 'Sound needs a <b>medium</b>: air, water or a solid. It cannot cross empty space (<b>vacuum</b>).', '<b>Amplitude</b> (size of the shake) → <b>loudness</b>. <b>Frequency</b> (shakes per second) → <b>pitch</b>.', 'Frequency is measured in <b>hertz (Hz)</b>. <b>Time period</b> is the time for one shake.', 'People hear 20 to 20,000 Hz. Lower is infrasound, higher is ultrasound.', 'Pleasant sound is music. Unpleasant, loud sound is noise. Too much of it is noise pollution.'],
+  quiz: [{ q: 'What makes the pitch of a sound higher?', o: ['A bigger shake', 'Faster shakes (more per second)', 'A heavier speaker'], a: 1, why: 'More shakes per second make a higher pitch.' }, { q: 'Can sound travel through a vacuum?', o: ['Yes', 'No', 'Only through water'], a: 1, why: 'Sound needs air, water or a solid to carry the shakes.' }, { q: 'Which part of a loudspeaker vibrates to make sound?', o: ['The whole box', 'The cone at the front', 'The wire'], a: 1, why: 'The cone pushes the air in front of it.' }, { q: 'The range of human hearing is…', o: ['2 to 200 Hz', '20 to 20,000 Hz', '200 to 2,000,000 Hz'], a: 1, why: 'Below is infrasound, above is ultrasound.' }]
 };

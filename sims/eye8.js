@@ -24,7 +24,7 @@ export default {
     const col = new THREE.Color(0xfde047).multiplyScalar(.2 + .8 * (P.L - 1) / 4);
     RAYS.forEach((y, i) => { const ok = Math.abs(y) <= pr; rA[i].material.color.copy(col); rB[i].material.color.copy(col); rA[i].set(V(.2, y, 0), V(ok ? 3.2 : 2.5, y, 0)); rB[i].visible = ok; if (ok) rB[i].set(V(3.2, y, 0), V(6.8, 0, 0)); });
   },
-  ro: { Pupil: P => P.f > .5 ? 'Big' : P.f > .3 ? 'Medium' : 'Small' },
+  ro: { Pupil: P => P.f > .5 ? 'Big' : P.f > .3 ? 'Medium' : 'Small', 'Pupil width': P => (2 + (P.f - .22) / .48 * 6).toFixed(1) + ' mm', 'Light in': P => Math.round((P.f / .7) ** 2 * 100) + '%' },   // width about 2 mm (bright) to 8 mm (dark) · light in = pupil area compared with the biggest pupil
   status: P => P.L < 3 ? ['Letting in more light', true] : P.L > 3 ? ['Letting in less light', true] : ['Medium light', true],
   note: P => P.f > .5 ? 'In dim light the pupil grows big. More light can enter.' : P.f > .3 ? 'The pupil is medium. It changes size when the light changes.' : 'In bright light the pupil gets small. Less light enters, so the eye stays safe.',
   try: [{ t: 'Set the light to <b>Dark</b>. Watch the pupil.', check: P => P.L === 1 && P.f > .6, yes: 'Yes! In the dark the pupil grows big.' },

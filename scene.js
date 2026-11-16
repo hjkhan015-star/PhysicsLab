@@ -96,8 +96,41 @@ function sizeLabels() {
     lp.copy(s.position).project(C); const sx = (lp.x + 1) / 2 * w, over = Math.max(0, 4 - (sx - s.wpx / 2)) - Math.max(0, sx + s.wpx / 2 - (w - 4));   // slide the label back inside the screen if it sticks out
     s.center.x = .5 - over / (5 * s.sc * k * ppu); s.sx = sx + over; }
 }
-let ac;                                          // short tone (Web Audio) for the sound modules
-export function beep(f, g = .1, dur = 1.2) {
-  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), n = ac.createGain(), t = ac.currentTime;
-    o.frequency.value = f; n.gain.setValueAtTime(g, t); n.gain.exponentialRampToValueAtTime(.001, t + dur); o.connect(n).connect(ac.destination); o.start(); o.stop(t + dur); } catch (e) {}
+// ── audio engine (Web Audio). One shared AudioContext, unlocked by the first tap anywhere (phones refuse sound before that).
+//    beep(f,g,dur)  = one short note (old API, still used by Class 9).   tone = a continuous voice that follows sliders live.
+//    Low notes (100–250 Hz) are almost silent on a phone speaker, so every voice adds harmonics (2f, 3f, 4f…) — you hear the pitch, the speaker can play it.
+let ac, master;
+function ctx() {
+  try {
+    if (!ac) { const A = window.AudioContext || window.webkitAudioContext; if (!A) return null; ac = new A(); master = ac.createGain(); master.gain.value = 1;
+      const cp = ac.createDynamicsCompressor(); cp.threshold.value = -14; cp.ratio.value = 6; master.connect(cp).connect(ac.destination); }
+    if (ac.state !== 'running') ac.resume().catch(() => {});
+    return ac;
+  } catch (e) { return null; }
 }
+function unlock() { const a = ctx(); if (!a) return; try { const b = a.createBuffer(1, 1, 22050), s = a.createBufferSource(); s.buffer = b; s.connect(a.destination); s.start(0); } catch (e) {} if (a.state === 'running') ['pointerdown', 'touchend', 'click', 'keydown'].forEach(e => removeEventListener(e, unlock, true)); }
+['pointerdown', 'touchend', 'click', 'keydown'].forEach(e => addEventListener(e, unlock, true));
+const TIMBRE = { pure: [1], fork: [1, .25, .08], speaker: [1, .55, .4, .28, .18], string: [1, .7, .5, .35, .22, .12], drum: [1, .6, .3] };   // harmonic strengths
+export function beep(f, g = .1, dur = 1.2, kind = 'speaker') {
+  const a = ctx(); if (!a) return; const t = a.currentTime, out = a.createGain(), amp = Math.min(.7, g * 6), parts = TIMBRE[kind] || TIMBRE.speaker, sum = parts.reduce((x, y) => x + y, 0);
+  out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(amp, t + .02); out.gain.exponentialRampToValueAtTime(.001, t + dur); out.connect(master);
+  parts.forEach((p, i) => { const o = a.createOscillator(), n = a.createGain(); o.type = 'sine'; o.frequency.value = f * (i + 1); if (f * (i + 1) > 12000) return; n.gain.value = p / sum; o.connect(n).connect(out); o.start(t); o.stop(t + dur + .05); });
+}
+export function rumble(g = .5, dur = 3.5) {                // thunder: a crack then a low rolling rumble (noise through a falling low-pass filter). One shot; call it when the sound should arrive.
+  const a = ctx(); if (!a) return; const t = a.currentTime, n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0, b = 0; i < n; i++) { b = b * .985 + (Math.random() * 2 - 1) * .1; d[i] = b * 3 + (Math.random() * 2 - 1) * .35; }
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), o = a.createGain(); s.buffer = buf; f.type = 'lowpass'; f.frequency.setValueAtTime(1200, t); f.frequency.exponentialRampToValueAtTime(150, t + dur);
+  o.gain.setValueAtTime(0, t); o.gain.linearRampToValueAtTime(Math.min(.8, g), t + .04); o.gain.exponentialRampToValueAtTime(.001, t + dur); s.connect(f).connect(o).connect(master); s.start(t);
+}
+export const tone = {                                  // tone.set(freq, loudness 0–1, 'fork'|'speaker'|'string'|'pure')  ·  tone.set(0) or tone.stop() = silence  ·  tone.hold(true) = mute while paused
+  v: null, held: false, lvl: .3,
+  set(f, g = .3, kind = 'speaker') {
+    const a = ctx(); if (!a || !f || g <= 0) return tone.stop(); const t = a.currentTime;
+    if (!tone.v || tone.v.kind !== kind) { tone.stop(true); const out = a.createGain(), parts = TIMBRE[kind] || TIMBRE.speaker, sum = parts.reduce((x, y) => x + y, 0); out.gain.value = 0; out.connect(master);
+      const os = parts.map((p, i) => { const o = a.createOscillator(), n = a.createGain(); o.type = 'sine'; n.gain.value = p / sum; o.connect(n).connect(out); o.start(); return o; }); tone.v = { out, os, kind }; }
+    const V0 = tone.v; V0.os.forEach((o, i) => o.frequency.setTargetAtTime(Math.min(f * (i + 1), 16000), t, .03)); tone.lvl = Math.min(.7, g); V0.out.gain.setTargetAtTime(tone.held ? 0 : tone.lvl, t, .05);
+  },
+  stop(now) { const v = tone.v; if (!v) return; tone.v = null; const a = ac, t = a.currentTime; v.out.gain.cancelScheduledValues(t); v.out.gain.setTargetAtTime(0, t, now ? .005 : .05); v.os.forEach(o => { try { o.stop(t + .4); } catch (e) {} }); },
+  hold(b) { tone.held = b; if (tone.v) tone.v.out.gain.setTargetAtTime(b ? 0 : tone.lvl, ac.currentTime, .05); }
+};
+addEventListener('pagehide', () => tone.stop(true)); document.addEventListener('visibilitychange', () => { if (document.hidden) tone.stop(true); });

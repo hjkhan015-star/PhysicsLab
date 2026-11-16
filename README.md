@@ -16,7 +16,7 @@ Interactive 3D physics simulations arranged by class and textbook chapter. Insta
 
 | Class | Style | Ready simulations |
 |---|---|---|
-| **8** Easy · Explore | simple words, emoji, no formulas | Force & Pressure (solids, liquids) · Friction · Sound · Chemical effects of current · Lightning & static · Light (reflection, the eye) · Moon & planets |
+| **8** Easy · Explore | simple words, emoji, no formulas | Force & Pressure (solids, liquids) · Friction · Sound · Chemical effects of current · Lightning & static · Light (reflection, the eye) · Day, night & seasons · Eclipses & Moon phases · The planets · Comets, meteors & stars · Scale of the Universe · Satellites |
 | **9** Standard · Formulas | equations with your numbers, live graphs | Motion · Laws of Motion (+ momentum) · Gravitation (+ Archimedes) · Work & Energy · Sound (+ echo) · Pendulum★ · Projectile★ |
 | **10** HSLC · Board depth | derivations, TIR, series/parallel | Refraction · Mirrors · Lenses · Prism · Human eye · Electricity · Magnet field · DC motor · Induction & AC · Sources of energy |
 
@@ -30,4 +30,4 @@ Every simulation has a caption, **Try this** activities, **Remember** points and
 Read **`HOW-TO-ADD-A-SIM.md`** — one file in `sims/` plus one line in `syllabus.js`. No build step.
 
 ## Files
-`index.html` home · `lab.html` the one page that runs every sim (`?sim=friction8`) · `app.js` UI · `scene.js` 3D helpers · `optics.js` mirror/lens/prism formulas (no 3D) · `style.css` · `syllabus.js` · `sims/` · `sw.js` · `manifest.webmanifest` · `icons/` · `vendor/three.module.js`
+`index.html` home · `lab.html` the one page that runs every sim (`?sim=friction8`) · `app.js` UI · `scene.js` 3D helpers · `optics.js` mirror/lens/prism formulas (no 3D) · `style.css` · `syllabus.js` · `sims/` · `earth.js` (world map + day/night sphere shared by the sky sims) · `sw.js` · `manifest.webmanifest` · `icons/` · `vendor/three.module.js`

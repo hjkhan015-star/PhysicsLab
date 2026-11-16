@@ -26,6 +26,7 @@ export default {
   step(dt, P) { /* every frame: P.F, P.s … are the slider values; move things, save results in P */ },
   ro:   { 'Your push': P => P.F + ' N', Friction: P => '10 N' },  // → MONITOR rows (numbers only). First row = big headline (or set head:'Friction')
   status: P => ['Moving', true],                                 // optional pill: [text, green?, 'warn'|'crit']
+  tabs: [['force8', 'Force'], ['pressure8', 'Solids']],       // optional: sibling sims of one chapter become tabs in the header (give the others `hidden: true` in syllabus.js)
   graph:  P => ({ pts: [[0, 1], [1, 2]], xmax: 10, ymax: 20, xl: 'time (s)', yl: 'speed' }),   // optional live graph
   note: P => 'Short explanation that changes with the sliders',   // → caption + info sheet "Now"
   try:  ['Activity 1', { t: 'Activity 2', check: P => P.s === 1, yes: 'Yes! Well done.' }],   // → "Try this"; optional check → ✅ + cheer (use it in Class 8; keep it false at the start)
@@ -36,9 +37,13 @@ export default {
 **Rules of thumb:** numbers go in `ro` (Monitor), words go in `note`/`try`/`key`. Class 8 → emoji + words, no formulas. Class 9 → show the formula with the student's numbers filled in. Class 10 → add derived results and board-style questions.
 
 ## 3D helpers (scene.js)
-`box(w,h,d,color)` · `sph(r,color)` · `floor(w,d)` · `beam(color,width).set(a,b)` thick ray · `arrow(color).set(x,y,len,dir,z)` · `label('text','#hex').set('new text')` floating text · `arrowTo(color).to(ax,ay,bx,by,z)` arrow between any two points · `wire([[x,y],…],color,r)` thick bent wire · `beep(hz)` · `V(x,y,z)` · `D` (degrees→radians).
+`box(w,h,d,color)` · `sph(r,color)` · `floor(w,d)` · `beam(color,width).set(a,b)` thick ray · `arrow(color).set(x,y,len,dir,z)` · `label('text','#hex').set('new text')` floating text · `arrowTo(color).to(ax,ay,bx,by,z)` arrow between any two points · `wire([[x,y],…],color,r)` thick bent wire · `beep(hz,gain,secs,'speaker'|'fork'|'string'|'pure')` one note · `tone.set(hz,loudness 0–1,'speaker'…)` a continuous voice that follows sliders (call every frame; `tone.stop()` for silence; Pause mutes it automatically) · `rumble(gain,secs)` one thunder roll (call it when the sound should arrive) · `V(x,y,z)` · `D` (degrees→radians).
 
 **Show a control only sometimes:** add `w: P => P.mode === 2` to any slider, toggle or button — it is hidden while `w` returns false. A Monitor row (`ro`) whose function returns `null` is hidden too.
+
+**Hiding a 3D object:** set `obj.visible = false` with a real boolean — three.js only hides an object whose `visible` is exactly `false`, so `visible = a && b` with `a === null` leaves it on screen. Use `!!(…)`.
+
+**Full-screen flash:** add a white plane to the camera (`C.add(plane); S.add(C)` with `depthTest:false`), as `lightning8` does. Keep it to 2 short pulses per event and at least 3 s between events (no more than 3 flashes a second).
 
 **Light sims** share `optics.js` (pure functions, New Cartesian sign convention): `image('mirror'|'lens', u, f)`, `rays(...)`, `prism(i, A, n)`. Import it with `import { image, rays } from '../optics.js';`.
 
