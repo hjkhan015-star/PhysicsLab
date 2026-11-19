@@ -69,7 +69,7 @@ function drawGraph(cv, d) {
   if (y0 < 0) { x.strokeStyle = mu; x.lineWidth = 2; x.beginPath(); x.moveTo(X(0), Y(0)); x.lineTo(X(d.xmax), Y(0)); x.stroke(); }
   x.fillStyle = ink; x.textAlign = 'center'; x.fillText(d.xl, (ml + W - mr) / 2, H - 6); x.textAlign = 'left'; x.fillText(d.yl, 8, 20);
   if (d.ref) { x.setLineDash([10, 8]); x.strokeStyle = mu; x.lineWidth = 2.5; x.beginPath(); x.moveTo(X(d.ref[0][0]), Y(d.ref[0][1])); x.lineTo(X(d.ref[1][0]), Y(d.ref[1][1])); x.stroke(); x.setLineDash([]); }
-  const p = d.pts; if (p.length) { const col = d.color || '#f59e0b'; x.strokeStyle = col; x.lineWidth = 5; x.lineJoin = 'round'; x.beginPath(); p.forEach(([a, b], i) => i ? x.lineTo(X(a), Y(b)) : x.moveTo(X(a), Y(b))); x.stroke();
+  const p = d.pts; if (p.length) { const col = d.color || '#f59e0b'; if (d.fill) { x.fillStyle = col + '44'; x.beginPath(); x.moveTo(X(p[0][0]), Y(0)); p.forEach(([a, b]) => x.lineTo(X(a), Y(b))); x.lineTo(X(p[p.length - 1][0]), Y(0)); x.closePath(); x.fill(); } x.strokeStyle = col; x.lineWidth = 5; x.lineJoin = 'round'; x.beginPath(); p.forEach(([a, b], i) => i ? x.lineTo(X(a), Y(b)) : x.moveTo(X(a), Y(b))); x.stroke();
     const q = p[p.length - 1]; x.fillStyle = col; x.beginPath(); x.arc(X(q[0]), Y(q[1]), 9, 0, 7); x.fill(); }
 }
 
@@ -128,6 +128,7 @@ async function start() {
   if (cfg.tabs) {                                                   // chapter switcher in the header: tabs: [['force8','Force'],['pressure8','Solids']] — each opens that sim
     const h = $('#ttl'); root.dataset.tabs = '1'; h.className = 'ttabs'; h.innerHTML = cfg.tabs.map(([id, n]) => `<button data-id="${id}" class="${id === simId ? 'on' : ''}" aria-pressed="${id === simId}">${n}</button>`).join('');
     h.onclick = e => { const b = e.target.closest('button'); if (b && b.dataset.id !== simId) location.replace('lab.html?sim=' + b.dataset.id); };
+    if (cfg.tabs.length > 4) { h.classList.add('many'); const on = h.querySelector('.on'); if (on) h.scrollLeft += on.getBoundingClientRect().left - h.getBoundingClientRect().left - 6; }       // 5+ tabs: swipe sideways, the open tab starts in view
   }
   fitTitle(); addEventListener('resize', fitTitle);
 
