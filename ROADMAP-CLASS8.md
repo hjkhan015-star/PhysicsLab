@@ -25,3 +25,23 @@ Phases 1 and 2 are done. Phase 3 is planned from the teacher's request list.
 - **`scale8`**: one log-scale zoom slider (Earth → Moon → Sun → planets → nearest star → Milky Way → galaxies → edge of the Universe) with smooth zoom, labels that avoid each other, a red *You are here* pin, a scale bar, and the Monitor showing light-travel time, distance and view width. "Sizes true for this zoom only" label; tiny things are enlarged dots.
 - **`satellites8`**: **Orbits** (low: ISS 400 km + an Earth-watching polar satellite; *High orbits* switch: GPS, geostationary with a marker that stays above one spot, and the Moon as the natural satellite) and **ISS map** (flat world map, ground track on/off, time slider + speed slider, ±51.6° lines). Model only: labelled "not live tracking, works offline".
 - Shared: `earth.js` now also exports `frus()` (see-through cone used for shadows and comet tails).
+
+## Phase 4 — from the teacher's handwritten notes (PLAN)
+Split into small steps so each can be tested on a phone before the next.
+
+**4a — Storm + Sound — DONE**
+- `lightning8` Storm: the next flash now waits until the last thunder has arrived (before, a new flash could appear while the old thunder was still on its way, which looked like instant sound). *Cloud-to-cloud flashes* switch (about 1 in 2 flashes): bolt inside the cloud, no ground hit, thunder still arrives after 3 s per km. Three white rings show the sound spreading from the flash. **You are** slider now moves the listener (ground ruler shows km); changing it mid-flight drops the old wave. House and tree moved left to make room.
+- `sound8`: a full field of air/water particles (7 rows) is always visible. Grey = not reached yet (at rest), blue = shaking; the shaking spreads out from the source at the wave speed; yellow tracer particles show each one only moves back and forth. Restarts when Source or Medium changes.
+
+**4b — Sky: Meteor as its own tab + realistic Earth surface — DONE**
+Header tabs are now Sky (Comet · Stars) · Meteor · Scale · Orbits. `meteor8` is a new tab; the shared engine moved to `sims/sky8core.js` (not a card; `skyobjects8` and `meteor8` are thin wrappers over it). Meteor scene: a curved patch of Earth with land, sea, sand coast and clouds, a blue glow for the air that fades out at the top (about 100 km), a line at the edge of the air, and stars in space above. Rock still lands on the curved ground.
+
+**4c — Solar system — DONE (`planets8`, Sun glow also in `stars8` and the comet)**
+Smooth oval orbit lines instead of dots, using the real oval-ness of each orbit (Mercury and Mars are visibly oval); Earth's orbit in blue, thicker and labelled; planets are drawn with Earth's map, Jupiter's bands and red spot, Saturn's bands and rings, and slowly spin; the Sun has a soft glow with no hard edge (shared `glowSprite()` in `earth.js`). Not yet done: Sun glow inside the Scale zoom (comes with 4d).
+
+**4d + 4e — DONE: `scale8` rewrite + ISS map fix on mobile**
+- ISS map: the camera is now locked in map mode (`lock: true` in the view; a finger drag or wheel no longer turns or zooms it), the map is seen face-on, and the ISS, its trail and the Assam pin are drawn on top of the map (`depthTest` off, high draw order, lifted off the surface). Checked with a touch-style drag in the test browser: the map stays flat and the ISS stays visible.
+- `scale8`, two modes. **Distance**: the old zoom axis, plus a *Jump to* slider (Earth, Moon, Sun, Planets, Stars, Milky Way, Galaxies, Universe) that glides to the stop, a *Light race* switch (a light dot crosses the picture at 299,792 km/s with the time it has taken, clock sped up), Earth with its map, glowing Sun. **Size**: true proportions in five steps (Moon+Earth, +Jupiter, +Sun, +Stars, +Giant star); things too small to see become enlarged dots with a warning label; Monitor shows how wide it is, how many Earths in a row and how many Earths fit inside.
+- Still open (ideas): planets with textures in the Scale planets zoom; a distance ruler in Size mode.
+
+**Extras proposed:** sound — compression/rarefaction label and a wave graph; storm — safety checklist card; all new text kept in simple Class 8 words; quiz question added for each change.
