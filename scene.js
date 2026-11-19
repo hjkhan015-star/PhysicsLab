@@ -73,6 +73,12 @@ export function wire(pts, color = 0x94a3b8, r = .08, z = 0) {
   const path = new THREE.CurvePath(); for (let i = 1; i < pts.length; i++) path.add(new THREE.LineCurve3(V(pts[i - 1][0], pts[i - 1][1], z), V(pts[i][0], pts[i][1], z)));
   return add(new THREE.Mesh(new THREE.TubeGeometry(path, pts.length * 12, r, 6, false), new THREE.MeshBasicMaterial({ color })));
 }
+// glowing bead trail (Phase 0): const t = trail(0x38bdf8, 120, .13, true);  t.put(x, y, z) each frame or every metre;  t.clear().  fade=false keeps the whole path at full size.
+export function trail(color, n = 80, r = .13, fade = true) {
+  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshBasicMaterial({ color }), n), P = [], d = new THREE.Object3D(); m.count = 0; m.frustumCulled = false; S.add(m);
+  const draw = () => { m.count = P.length; P.forEach((p, k) => { d.position.set(p[0], p[1], p[2]); d.scale.setScalar(r * (fade ? 1 - .8 * (P.length - 1 - k) / n : 1)); d.updateMatrix(); m.setMatrixAt(k, d.matrix); }); m.instanceMatrix.needsUpdate = true; };
+  m.put = (x, y, z = 0) => { P.push([x, y, z]); if (P.length > n) P.shift(); draw(); }; m.clear = () => { P.length = 0; draw(); }; return m;
+}
 // floating text that always faces the camera:  const t = label('Hi', '#fff');  t.set('new text', '#hex');  t.position.set(x, y, z)
 // Its size follows the camera distance and the screen, but never drops below MIN_PX so it stays readable on a phone (see view.render).
 const LW = 640, LH = 160, MIN_PX = 12, MAX_GROW = 5;           // canvas size (2× for sharp text) · smallest text height on screen · biggest boost

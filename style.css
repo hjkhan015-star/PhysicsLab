@@ -146,3 +146,5 @@ body.home{display:block;height:auto;min-height:100dvh;overflow:auto;padding:env(
 .home .card.soon span::after{content:" · soon";color:var(--mu)}
 
 [hidden]{display:none!important}
+
+#ttl.ttabs.many{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}#ttl.ttabs.many::-webkit-scrollbar{display:none}.ttabs.many button{flex:0 0 auto;min-width:4.4rem!important;padding:0 .7rem!important}

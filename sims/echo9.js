@@ -1,9 +1,10 @@
 // Class 9 · Ch 12 Sound — echo and SONAR: distance = speed × time ÷ 2.
 import { S, V, box, sph, floor, mat, THREE, label } from '../scene.js';
 const VS = 340, SCALE = .2, SLOW = 5, X0 = -11;                      // 1 m = 0.2 scene units · animation is 5× slower than real
+const TABS = [['sound9', 'Wave'], ['waves9', 'Types'], ['spread9', 'Spread'], ['echo9', 'Echo']];
 let pulse, wall, lc, le, t, run;
 export default {
-  title: 'Echo — How Far Is the Wall?', cam: { d: 17, e: .25, a: 0, t: V(0, 1.8, 0), ref: 2 },
+  title: 'Echo — How Far Is the Wall?', tabs: TABS, cam: { d: 17, e: .25, a: 0, t: V(0, 1.8, 0), ref: 2 },
   head: 'Echo returns after',
   sliders: [{ k: 'd', l: 'Distance to wall', min: 5, max: 100, step: 5, v: 50, u: 'm' }],
   buttons: [{ l: '👏 Clap', fn: () => { t = 0; run = true; } }],
