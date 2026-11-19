@@ -40,3 +40,10 @@ export function frus(col, op) {                     // a see-through cone/shadow
     for (let i = 0; i < N; i++) { const a = i / N * 6.2832, c = Math.cos(a), s = Math.sin(a); for (let k = 0; k < 2; k++) { const p = k ? p1 : p0, r = k ? r1 : r0; pos[(k * N + i) * 3] = p.x + (e1.x * c + e2.x * s) * r; pos[(k * N + i) * 3 + 1] = p.y + (e1.y * c + e2.y * s) * r; pos[(k * N + i) * 3 + 2] = p.z + (e1.z * c + e2.z * s) * r; } } g.attributes.position.needsUpdate = true; return m; };
   return m;
 }
+
+// A soft glowing Sun: a sprite whose picture fades smoothly to nothing (no hard edge). g = glowSprite(); g.scale.setScalar(6 × the Sun's radius); g.position.copy(sun.position)
+export function glowSprite(col = '255,170,40') {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(255,248,215,.95)'); g.addColorStop(.17, `rgba(${col},.6)`); g.addColorStop(.4, `rgba(${col},.2)`); g.addColorStop(1, `rgba(${col},0)`); x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); s.renderOrder = 1; S.add(s); return s;
+}

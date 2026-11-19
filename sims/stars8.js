@@ -1,6 +1,6 @@
 // Class 8 · Ch 17 Stars and the Solar System — why we have day and night (Earth spins) and why we have seasons (Earth's tilt as it goes round the Sun). Not to scale.
 import { S, V, D, THREE, arrow, label, view } from '../scene.js';
-import { earthTex, litMat, ll } from '../earth.js';
+import { earthTex, litMat, ll, glowSprite } from '../earth.js';
 const EPS = 23.5 * D, LAT = [-30, 0, 26], PLACE = ['South 30°', 'Equator', 'North 26°'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], ML = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const dateName = d => { let m = 0, r = Math.round(d); r = ((r - 1) % 365 + 365) % 365 + 1; while (r > ML[m]) r -= ML[m++]; return MON[m] + ' ' + r; };
 const clock = h => { let m = Math.round(h * 60) % 1440, hh = Math.floor(m / 60), mm = m % 60; return (hh % 12 || 12) + ':' + String(mm).padStart(2, '0') + (hh < 12 ? ' am' : ' pm'); };
@@ -19,7 +19,7 @@ export default {
   setup() {
     const g = new THREE.BufferGeometry(), a = []; for (let i = 0; i < 260; i++) { const u = Math.random() * 6.283, v = Math.acos(2 * Math.random() - 1), r = 70; a.push(r * Math.sin(v) * Math.cos(u), r * Math.cos(v), r * Math.sin(v) * Math.sin(u)); }
     g.setAttribute('position', new THREE.Float32BufferAttribute(a, 3)); stars = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: .35, sizeAttenuation: false, transparent: true, opacity: .55 })); stars.frustumCulled = false; S.add(stars);
-    sunM = new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), new THREE.MeshBasicMaterial({ color: 0xfbbf24 })); halo = new THREE.Mesh(new THREE.SphereGeometry(1.35, 24, 16), new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: .2, depthWrite: false, blending: THREE.AdditiveBlending })); S.add(sunM, halo);
+    sunM = new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), new THREE.MeshBasicMaterial({ color: 0xfbbf24 })); halo = glowSprite(); S.add(sunM);
     epos = new THREE.Group(); tilt = new THREE.Group(); spin = new THREE.Group(); S.add(epos); epos.add(tilt); tilt.add(spin);
     mat_ = litMat({ map: earthTex(), ambient: .12 }); earth = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), mat_); spin.add(earth);
     axis = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, 1, 8), new THREE.MeshBasicMaterial({ color: 0xe2e8f0 })); tilt.add(axis);
@@ -40,7 +40,7 @@ export default {
     [orbit, lOrb, lNS, ...gl, ...ghost].forEach(o => o.visible = !A); [...rays, lSpin, lYou].forEach(o => o.visible = A); lEarth.visible = true;
     const th = (Dd - 172) / 365 * 6.2832; P.th = th; epos.position.set(A ? 0 : 8 * Math.cos(th), 0, A ? 0 : -8 * Math.sin(th)); tilt.rotation.z = ep; spin.scale.setScalar(R);
     const sDir = A ? V(-1, 0, 0) : V(-epos.position.x, 0, -epos.position.z).normalize();
-    sunM.position.set(A ? -10.5 : 0, 0, 0); sunM.scale.setScalar(A ? 2.9 : 1.9); halo.position.copy(sunM.position); halo.scale.setScalar(A ? 2.9 : 1.9); mat_.uniforms.sun.value.copy(sDir);
+    sunM.position.set(A ? -10.5 : 0, 0, 0); sunM.scale.setScalar(A ? 2.9 : 1.9); halo.position.copy(sunM.position); halo.scale.setScalar((A ? 2.9 : 1.9) * 6); mat_.uniforms.sun.value.copy(sDir);
     const pl = ll(92, lat), a0 = Math.atan2(pl.z, pl.x);   // where "You" stand on the map
     if (A) { spin.rotation.y = a0 - Math.PI + (T - 12) / 24 * 6.2832; } else { const sl = sDir.clone().applyAxisAngle(V(0, 0, 1), -ep); spin.rotation.y = a0 - Math.atan2(sl.z, sl.x); }   // day mode: spin with the clock · seasons mode: show the moment of noon
     const nn = pl.clone().normalize(); stick.quaternion.setFromUnitVectors(V(0, 1, 0), nn); stick.scale.y = .32; stick.position.copy(nn).multiplyScalar(1.16); head.position.copy(nn).multiplyScalar(1.34);   // the pin stands straight out of the ground

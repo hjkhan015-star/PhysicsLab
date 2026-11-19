@@ -15,8 +15,9 @@ const dl = new THREE.DirectionalLight(0xffffff, .8); dl.position.set(5, 10, 6); 
 let cam = { a: .6, e: .45, d: 16, t: new THREE.Vector3() }, drag = false, lx = 0, ly = 0, fit = 1;
 cv.onpointerdown = e => { drag = true; lx = e.clientX; ly = e.clientY; cv.setPointerCapture(e.pointerId); };
 cv.onpointerup = cv.onpointercancel = () => drag = false;
-cv.onpointermove = e => { if (!drag) return; cam.a -= (e.clientX - lx) * .008; cam.e = Math.max(.02, Math.min(1.5, cam.e + (e.clientY - ly) * .006)); lx = e.clientX; ly = e.clientY; };
-cv.addEventListener('wheel', e => { cam.d = Math.max(5, Math.min(60, cam.d + e.deltaY * .02)); e.preventDefault(); }, { passive: false });
+cv.onpointermove = e => { if (!drag || cam.lock) return;               // cam.lock = a flat view (the ISS map) that a finger must not turn
+    cam.a -= (e.clientX - lx) * .008; cam.e = Math.max(.02, Math.min(1.5, cam.e + (e.clientY - ly) * .006)); lx = e.clientX; ly = e.clientY; };
+cv.addEventListener('wheel', e => { if (!cam.lock) cam.d = Math.max(5, Math.min(60, cam.d + e.deltaY * .02)); e.preventDefault(); }, { passive: false });
 function resize() {
   const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return; const a = w / h;
   R.setPixelRatio(Math.min(devicePixelRatio, 2)); R.setSize(w, h, false); C.aspect = a;

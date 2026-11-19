@@ -27,6 +27,7 @@ export const CLASSES = [
    { id: "eclipse8", ch: 17, label: "Stars and the Solar System – Eclipses", sub: "Eclipses, Moon phases", color: "#6366f1", icon: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16"/>', hidden: true },
    { id: "planets8", ch: 17, label: "Stars and the Solar System – Planets", sub: "Eight planets", color: "#6366f1", icon: '<circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4"/>', hidden: true },
    { id: "skyobjects8", ch: 17, label: "Stars and the Solar System – Sky Objects", sub: "Comets, meteors, stars", color: "#8b5cf6", icon: '<path d="M4 20 16 8M13 5l6 0 0 6"/><circle cx="17" cy="7" r="2"/>' },
+   { id: "meteor8", ch: 17, label: "Stars and the Solar System – Meteors", sub: "Shooting stars and meteorites", color: "#8b5cf6", icon: '<path d="M4 20 16 8"/><circle cx="17" cy="7" r="2"/>', hidden: true },
    { id: "scale8", ch: 17, label: "Stars and the Solar System – Scale", sub: "Earth to the Universe", color: "#8b5cf6", icon: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>', hidden: true },
    { id: "satellites8", ch: 17, label: "Stars and the Solar System – Satellites", sub: "ISS, GPS, geostationary", color: "#8b5cf6", icon: '<rect x="9" y="9" width="6" height="6"/><path d="M3 10h4M3 14h4M17 10h4M17 14h4"/>', hidden: true } ]},
  { n: 9, icon: 3, color: "#0ea5e9", tag: "Standard · Formulas", blurb: "Numbers enter the game — measure, use the equations and check them.", modules: [

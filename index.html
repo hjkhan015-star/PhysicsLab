@@ -29,5 +29,5 @@ function draw() {
 draw();
 // offline: register the service worker, then quietly fetch every ready simulation so the whole lab works without internet
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
-  fetch('lab.html'); CLASSES.forEach(c => c.modules.filter(m => !m.soon).forEach(m => fetch(`sims/${m.id}.js`))); }).catch(() => {});
+  fetch('lab.html'); fetch('sims/sky8core.js'); CLASSES.forEach(c => c.modules.filter(m => !m.soon).forEach(m => fetch(`sims/${m.id}.js`))); }).catch(() => {});
 </script></body></html>

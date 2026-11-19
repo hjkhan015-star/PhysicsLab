@@ -16,7 +16,7 @@ const trackPt = (tau) => { const th = ISS_TH0 + 2 * Math.PI * tau / per(400), in
 const mp = (lat, lon) => V(lon / 180 * 7, lat / 90 * 3.5, 0);
 export default {
   title: 'Satellites', cam: { d: 10, e: .55, a: 0, t: V(0, 0, 0), ref: 1.1 },
-  head: 'ISS goes round in', tabs: [['skyobjects8', 'Sky'], ['scale8', 'Scale'], ['satellites8', 'Satellites']],
+  head: 'ISS goes round in', tabs: [['skyobjects8', 'Sky'], ['meteor8', 'Meteor'], ['scale8', 'Scale'], ['satellites8', 'Orbits']],
   sliders: [{ k: 'm', l: '🔀 Mode', min: 1, max: 2, step: 1, v: 1, names: ['Orbits', 'ISS map'] },
     { k: 's', l: '⏱ Time speed', min: 1, max: 4, step: 1, v: 2, names: SPN, axis: true },
     { k: 't', l: '🕐 Time', min: 0, max: 300, step: 5, v: 20, u: 'min', axis: true, w: P => P.m === 2 }],
@@ -35,13 +35,14 @@ export default {
     trk = new THREE.InstancedMesh(new THREE.SphereGeometry(.06, 6, 5), new THREE.MeshBasicMaterial({ color: 0xffffff }), NT); trk.frustumCulled = false; trk.instanceColor = null; S.add(trk);
     iss = new THREE.Group(); iss.add(new THREE.Mesh(new THREE.BoxGeometry(.36, .2, .2), new THREE.MeshBasicMaterial({ color: 0xfb923c })), Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.7, .04, .2), new THREE.MeshBasicMaterial({ color: 0x60a5fa })))); S.add(iss);
     as = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 })); as.position.copy(mp(26, 92)); S.add(as);
+    iss.traverse(o => { if (o.material) { o.material.depthTest = false; o.renderOrder = 10; } }); trk.material.depthTest = false; trk.renderOrder = 9; as.material.depthTest = false; as.renderOrder = 9;   // drawn on top of the map, never behind it
     lIss = label('ISS', '#fb923c', .85); lAs = label('Assam', '#fca5a5', .75); lLim = label('ISS stays between these lines (51.6°)', '#fde047', .65); lMap = label('Model, not live tracking (works offline)', '#fbbf24', .72);
   },
   reset() { T = 20; lt = -1; lastMode = 0; lastHi = -1; lastLay = ''; spin = 0; },
   step(dt, P) {
     const m = P.m, O = m === 1, hi = !!P.hi, lay = document.documentElement.dataset.mode;
     if (lastMode !== m || lastHi !== hi || lastLay !== lay) { lastMode = m; lastHi = hi; lastLay = lay;
-      view.set(!O ? { d: 17, e: .02, a: 0, t: V(0, lay === 'portrait' ? .4 : -.5, 0), ref: 1.08 } : hi ? { d: 22, e: .55, a: 0, t: V(0, 0, 0), ref: lay === 'portrait' ? 1 : .8 } : { d: 10, e: .55, a: 0, t: V(0, 0, 0), ref: 1.5 });
+      view.set(!O ? { d: 17, e: 0, a: 0, lock: true, t: V(0, lay === 'portrait' ? .4 : -.5, 0), ref: 1.08 } : hi ? { d: 22, e: .55, a: 0, t: V(0, 0, 0), ref: lay === 'portrait' ? 1 : .8 } : { d: 10, e: .55, a: 0, t: V(0, 0, 0), ref: 1.5 });
       const R = hi ? 1 : 3, rr = ORB.map(o => R * (RE + o.alt) / RE); rings.visible = O; let n = 0; for (let k = 0; k < 4; k++) { const on = O && (hi ? k !== 1 : k < 2); for (let i = 0; i < NR; i++) { const a = i / NR * 6.2832; M4.compose(on ? vec(rr[k], ORB[k].inc, ORB[k].node, a) : V(), Q0, V(1, 1, 1).multiplyScalar(on ? .012 * R + .008 : .0001)); rings.setMatrixAt(n++, M4); } }
       for (let i = 0; i < NR; i++) { const a = i / NR * 6.2832, on = O && hi; M4.compose(on ? V(Math.cos(a) * MOONR, 0, 0).add(V(0, 0, -Math.sin(a) * MOONR)).applyAxisAngle(X, 5 * D) : V(), Q0, V(1, 1, 1).multiplyScalar(on ? .03 : .0001)); rings.setMatrixAt(n++, M4); } rings.instanceMatrix.needsUpdate = true; }
     if (P.t !== lt) { lt = P.t; T = P.t; } const mult = SPD[P.s - 1] * (O && hi ? 10 : 1); T += dt * mult; P.T = T; spin = T * WE;
@@ -57,7 +58,7 @@ export default {
       moon.visible = lMoon.visible = hi; if (hi) { const a = 2 * Math.PI * T / MOONT, mp3 = V(Math.cos(a) * MOONR, 0, -Math.sin(a) * MOONR).applyAxisAngle(X, 5 * D); moon.position.copy(mp3); moon.scale.setScalar(.27); mmat.uniforms.sun.value.set(-1, 0, 0); lMoon.position.copy(mp3).add(V(0, .9, 0)); }
       lEarth.position.set(0, -R - .6, .2); lNS.position.set(0, hi ? -3.6 : -R - 1.7, hi ? 3 : 2);
     } else {
-      const [la, lo] = trackPt(T), p = mp(la, lo); iss.position.copy(p); iss.position.z = .05; lIss.position.copy(p).add(V(0, .55, 0)); P.lat = la; P.lon = lo; lAs.position.copy(as.position).add(V(.3, -.5, 0));
+      const [la, lo] = trackPt(T), p = mp(la, lo); iss.position.copy(p); iss.position.z = .2; lIss.position.copy(p).add(V(0, .55, 0)); P.lat = la; P.lon = lo; lAs.position.copy(as.position).add(V(.3, -.5, 0));
       for (let i = 0; i < NT; i++) { const tau = T - 90 + i * 2.6, [a, b] = trackPt(tau); M4.compose(P.trk ? mp(a, b) : V(0, 0, -5), Q0, V(1, 1, 1).multiplyScalar(P.trk ? (tau < T ? .7 : 1) : .0001)); trk.setMatrixAt(i, M4); } trk.instanceMatrix.needsUpdate = true; trk.material.color.setHex(0xfde047);
       lLim.position.set(0, 3.5 * 51.6 / 90 + .35, 0); lMap.position.set(0, -4.3, 0); lLim.position.y = 3.5 * 51.6 / 90 + .38;
     }
