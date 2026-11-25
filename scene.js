@@ -74,6 +74,12 @@ export function wire(pts, color = 0x94a3b8, r = .08, z = 0) {
   const path = new THREE.CurvePath(); for (let i = 1; i < pts.length; i++) path.add(new THREE.LineCurve3(V(pts[i - 1][0], pts[i - 1][1], z), V(pts[i][0], pts[i][1], z)));
   return add(new THREE.Mesh(new THREE.TubeGeometry(path, pts.length * 12, r, 6, false), new THREE.MeshBasicMaterial({ color })));
 }
+// turbine wheel (blade idea adapted from AutoLab engine--turbo makeImpeller): hub + n tilted blades in the x–y plane. t = turbine(radius, blades, colour, pitch); t.position.set(...); spin it with t.rotation.z -= …
+export function turbine(r = 1, n = 8, col = 0xcbd5e1, pitch = .5) {
+  const g = new THREE.Group(), bm = mat(col, { metalness: .6, roughness: .35 }), hub = new THREE.Mesh(new THREE.CylinderGeometry(r * .18, r * .18, r * .3, 16), mat(0x64748b, { metalness: .7 })); hub.rotation.x = Math.PI / 2; g.add(hub);
+  for (let i = 0; i < n; i++) { const p = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(r * .2, r * .85, r * .04), bm); b.position.y = r * .55; b.rotation.y = pitch; p.add(b); p.rotation.z = i / n * 2 * Math.PI; g.add(p); }
+  S.add(g); return g;
+}
 // glowing bead trail (Phase 0): const t = trail(0x38bdf8, 120, .13, true);  t.put(x, y, z) each frame or every metre;  t.clear().  fade=false keeps the whole path at full size.
 export function trail(color, n = 80, r = .13, fade = true) {
   const m = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshBasicMaterial({ color }), n), P = [], d = new THREE.Object3D(); m.count = 0; m.frustumCulled = false; S.add(m);
