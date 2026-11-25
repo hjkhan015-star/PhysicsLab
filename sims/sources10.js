@@ -1,11 +1,11 @@
 // Class 10 · Ch 14 Sources of Energy — from source to bulb: conventional and renewable sources, with one advantage and one problem each.
 import { S, V, box, sph, mat, arrow, THREE, label } from '../scene.js';
-const SRC = ['Coal', 'Solar', 'Wind', 'Water (hydro)', 'Nuclear', 'Biogas', 'Geothermal', 'Tidal / wave', 'Ocean heat'], LV = ['Very low', 'Low', 'Medium', 'High', 'Very high'], REN = [0, 1, 1, 1, 0, 1, 1, 1, 1];
+const TABS = [['sources10', 'Overview'], ['thermal10', 'Power plant'], ['hydro10', 'Hydro'], ['renew10', 'Wind · Sun · more']], SRC = ['Coal', 'Solar', 'Wind', 'Water (hydro)', 'Nuclear', 'Biogas', 'Geothermal', 'Tidal / wave', 'Ocean heat'], LV = ['Very low', 'Low', 'Medium', 'High', 'Very high'], REN = [0, 1, 1, 1, 0, 1, 1, 1, 1];
 const CONV = ['Boiler + turbine', 'Solar panel', 'Wind turbine', 'Water turbine', 'Reactor + turbine', 'Gas burner + turbine', 'Hot-rock steam + turbine', 'Sea turbine', 'Warm/cold sea + turbine'], SC = [0x1f2937, 0xfacc15, 0xbae6fd, 0x38bdf8, 0x22c55e, 0xa16207, 0xb45309, 0x0ea5e9, 0x0369a1], CC = [0x94a3b8, 0x1d4ed8, 0xe2e8f0, 0x64748b, 0x94a3b8, 0x94a3b8, 0x94a3b8, 0x64748b, 0x94a3b8];
 const NOTE = ['Coal gives steady power, but burning it makes smoke and carbon dioxide.', 'Sunlight is free and clean, but it works only when the Sun shines.', 'Wind is free and clean, but it needs steady, strong wind.', 'Falling water gives clean power, but dams flood land and move people.', 'A little nuclear fuel gives huge power, but the waste is dangerous.', 'Biogas turns dung and plant waste into fuel and manure, but needs regular feeding.', 'Hot rocks deep underground make steam that turns a turbine. It is clean, but only a few places have such hot spots.', 'Tides and waves push a turbine. It is clean, but it needs a coast with a big tide and the machines are costly.', 'Warm surface water and cold deep water of the tropical sea can run a turbine (OTEC). It is clean, but needs a big temperature difference.'];
 let src, cv, gen, bulb, blades, a1, a2, a3, wr, lS, lC, lG, lT, ph, br;
 export default {
-  title: 'Sources of Energy', cam: { d: 17, e: .15, a: 0, t: V(0, 1.5, 0), ref: 2 },
+  title: 'Sources of Energy', tabs: TABS, cam: { d: 17, e: .15, a: 0, t: V(0, 1.5, 0), ref: 2 },
   head: 'Bulb brightness',
   sliders: [{ k: 's', l: 'Source', min: 1, max: 9, step: 1, v: 2, names: SRC, axis: true }, { k: 'q', l: 'How strong', min: 1, max: 5, step: 1, v: 4, names: LV, axis: true }],
   setup() {
