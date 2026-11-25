@@ -67,7 +67,10 @@ export const CLASSES = [
    { id: "motor10", ch: 13, label: "Magnetic Effects – DC Motor", sub: "Fleming's rule", color: "#f97316", icon: '<circle cx="12" cy="12" r="6"/><path d="M12 6v12M6 12h12"/>' },
    { id: "induction10", ch: 13, label: "Magnetic Effects – Induction", sub: "Faraday & AC", color: "#fb7185", icon: '<path d="M3 12c3-8 6-8 9 0s6 8 9 0"/>' },
    { id: "domestic10", ch: 13, label: "Magnetic Effects – Domestic Circuits", sub: "Fuse & earth wire", color: "#facc15", icon: '<path d="M4 6h16M4 12h16M4 18h16M9 4v4"/>' },
-   { id: "sources10", ch: 14, label: "Sources of Energy", sub: "Solar, wind, nuclear", color: "#22c55e", icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>' } ]}
+   { id: "sources10", ch: 14, label: "Sources of Energy", sub: "Power plants, hydro, wind, solar", color: "#22c55e", icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>' },
+   { id: "thermal10", ch: 14, label: "Sources of Energy – Power Plant", sub: "Thermal & nuclear (closed system)", color: "#f97316", icon: '<path d="M4 20h16M7 20V9l5-3v14M12 12h5v8"/>', hidden: true },
+   { id: "hydro10", ch: 14, label: "Sources of Energy – Hydro", sub: "Dam, turbine (open system)", color: "#38bdf8", icon: '<path d="M3 10c3-2 6 2 9 0s6 2 9 0M3 16c3-2 6 2 9 0s6 2 9 0"/>', hidden: true },
+   { id: "renew10", ch: 14, label: "Sources of Energy – Wind, Solar, More", sub: "Wind, solar, geothermal, wave", color: "#22c55e", icon: '<circle cx="12" cy="12" r="2"/><path d="M12 10V3M13.7 13l6 3.5M10.3 13l-6 3.5"/>', hidden: true } ]}
 ];
 // find a simulation (and its class) by id
 export const findSim = id => { for (const c of CLASSES) for (const m of c.modules) if (m.id === id) return { cls: c, mod: m }; return null; };
