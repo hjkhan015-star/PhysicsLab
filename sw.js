@@ -1,7 +1,7 @@
 // sw.js — makes the lab work offline. The shell is cached on install; every other file (each simulation) is cached the
 // first time it is opened — and index.html fetches them all in the background. Bump VERSION when you change files.
-const VERSION = 'physics-lab-v20';
-const CORE = ['./', 'index.html', 'lab.html', 'style.css', 'app.js', 'scene.js', 'optics.js', 'earth.js', 'syllabus.js', 'manifest.webmanifest', 'vendor/three.module.js', 'icons/icon.svg', 'icons/icon-192.png'];
+const VERSION = 'physics-lab-v24';
+const CORE = ['./', 'index.html', 'lab.html', 'style.css', 'app.js', 'scene.js', 'optics.js', 'raytools.js', 'earth.js', 'syllabus.js', 'manifest.webmanifest', 'vendor/three.module.js', 'icons/icon.svg', 'icons/icon-192.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== VERSION).map(x => caches.delete(x)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {
